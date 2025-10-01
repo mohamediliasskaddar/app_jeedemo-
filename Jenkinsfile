@@ -1,6 +1,7 @@
 pipeline {
-    agent any
-
+    agent {
+        docker { image 'maven:3.9.6-eclipse-temurin-21' }
+     }
     environment {
         DOCKER_IMAGE = 'jeedemo-img1'
     }
