@@ -1,5 +1,5 @@
 services:
-  #container 1 pour la db
+  #container 1 pour la db postgres 17
   jeedemo-db1:
     image: postgres:17
     container_name: jeedemo-db1
@@ -11,7 +11,7 @@ services:
       - "5433:5432"
     volumes:
       - jeedemo-data1:/var/lib/postgresql/data
-  #conatiner  2 pour l'app
+  #conatiner  2 pour l'app jee
   jeedemo-app1:
     image: jeedemo-img1
     container_name: jeedemo-app1
