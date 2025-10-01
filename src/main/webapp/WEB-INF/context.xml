@@ -1,0 +1,13 @@
+<Context path="/jeedemo">
+    <Resource
+            name="jdbc/jeedemoDS"
+            auth="Container"
+            type="javax.sql.DataSource"
+            username="imk"
+            password="secret"
+            driverClassName="org.postgresql.Driver"
+            url="jdbc:postgresql://jeedemo-db1:5432/jeedemo_db"
+            maxTotal="20"
+            maxIdle="10"
+            maxWaitMillis="-1"/>
+</Context>

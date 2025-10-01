@@ -1,0 +1,33 @@
+services:
+  #container 1 pour la db
+  jeedemo-db1:
+    image: postgres:17
+    container_name: jeedemo-db1
+    environment:
+      POSTGRES_USER: imk
+      POSTGRES_PASSWORD: secret
+      POSTGRES_DB: jeedemo_db
+    ports:
+      - "5433:5432"
+    volumes:
+      - jeedemo-data1:/var/lib/postgresql/data
+  #conatiner  2 pour l'app
+  jeedemo-app1:
+    image: jeedemo-img1
+    container_name: jeedemo-app1
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8081:8080"
+    depends_on:
+      - jeedemo-db1
+    environment:
+      DB_HOST: jeedemo-db1
+      DB_PORT: 5432
+      DB_NAME: jeedemo_db
+      DB_USER: imk
+      DB_PASSWORD: secret
+
+volumes:
+  jeedemo-data1:
