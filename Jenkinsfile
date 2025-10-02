@@ -44,7 +44,7 @@ pipeline {
             echo "Déploiement réussi avec ${DOCKER_IMAGE}:${env.BUILD_NUMBER}"
         }
         failure {
-            echo "Pipeline échoué !!!"
+            echo "Pipeline échoué !!"
         }
     }
 }
