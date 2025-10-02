@@ -46,6 +46,6 @@
 </c:if>
 </body>
 
-<p> <strong> all are reserved bte hh </strong></p>
+<p> <strong> all are reserved btw hh </strong></p>
 </body>
 </html>
