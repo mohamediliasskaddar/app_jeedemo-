@@ -22,15 +22,12 @@ pipeline {
             }
         }
 
-        // Utilisation d'agent none pour sortir du container Maven
         stage('Build Docker Image') {
             agent none
             steps {
-                node {
-                    script {
-                        sh "docker build -t ${DOCKER_IMAGE}:${env.BUILD_NUMBER} ."
-                        sh "docker tag ${DOCKER_IMAGE}:${env.BUILD_NUMBER} ${DOCKER_IMAGE}:latest"
-                    }
+                script {
+                    sh "docker build -t ${DOCKER_IMAGE}:${env.BUILD_NUMBER} ."
+                    sh "docker tag ${DOCKER_IMAGE}:${env.BUILD_NUMBER} ${DOCKER_IMAGE}:latest"
                 }
             }
         }
@@ -38,11 +35,9 @@ pipeline {
         stage('Deploy') {
             agent none
             steps {
-                node {
-                    script {
-                        sh "docker-compose down"
-                        sh "docker-compose up -d --build"
-                    }
+                script {
+                    sh "docker-compose down"
+                    sh "docker-compose up -d --build"
                 }
             }
         }
