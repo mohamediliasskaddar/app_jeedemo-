@@ -23,26 +23,18 @@ pipeline {
         }
 
         stage('Build Docker Image') {
-            agent none
+            agent { label 'docker' }
             steps {
-                node {
-                    script {
-                        sh "docker build -t ${DOCKER_IMAGE}:${env.BUILD_NUMBER} ."
-                        sh "docker tag ${DOCKER_IMAGE}:${env.BUILD_NUMBER} ${DOCKER_IMAGE}:latest"
-                    }
-                }
+                sh "docker build -t ${DOCKER_IMAGE}:${env.BUILD_NUMBER} ."
+                sh "docker tag ${DOCKER_IMAGE}:${env.BUILD_NUMBER} ${DOCKER_IMAGE}:latest"
             }
         }
 
         stage('Deploy') {
-            agent none
+            agent { label 'docker' }
             steps {
-                node {
-                    script {
-                        sh "docker-compose down"
-                        sh "docker-compose up -d --build"
-                    }
-                }
+                sh "docker-compose down"
+                sh "docker-compose up -d --build"
             }
         }
     }
