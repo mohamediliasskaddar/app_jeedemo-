@@ -22,23 +22,26 @@ pipeline {
             }
         }
 
-        // ⛔️ Retirer l'agent docker pour cette phase
         stage('Build Docker Image') {
-            agent { label 'docker' } // <- s’exécute sur le node principal
+            agent none
             steps {
-                script {
-                    sh "docker build -t ${DOCKER_IMAGE}:${env.BUILD_NUMBER} ."
-                    sh "docker tag ${DOCKER_IMAGE}:${env.BUILD_NUMBER} ${DOCKER_IMAGE}:latest"
+                node {
+                    script {
+                        sh "docker build -t ${DOCKER_IMAGE}:${env.BUILD_NUMBER} ."
+                        sh "docker tag ${DOCKER_IMAGE}:${env.BUILD_NUMBER} ${DOCKER_IMAGE}:latest"
+                    }
                 }
             }
         }
 
         stage('Deploy') {
-            agent { label 'docker' } // <- idem
+            agent none
             steps {
-                script {
-                    sh "docker-compose down"
-                    sh "docker-compose up -d --build"
+                node {
+                    script {
+                        sh "docker-compose down"
+                        sh "docker-compose up -d --build"
+                    }
                 }
             }
         }
