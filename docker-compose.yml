@@ -11,6 +11,8 @@ services:
       - "5433:5432"
     volumes:
       - jeedemo-data1:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+
   #conatiner  2 pour l'app jee
   jeedemo-app1:
     image: jeedemo-img1
