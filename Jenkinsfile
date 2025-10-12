@@ -37,7 +37,7 @@ pipeline {
             steps {
                 sh 'minikube start || true'
                 sh "sed -i 's|image: mohamediliasskaddar/jeedemo-img1:latest|image: ${DOCKER_IMAGE}:${env.BUILD_NUMBER}|g' k8s/app-deployment.yaml"
-                sh 'kubectl apply -f k8s/postgres-statefulset.yaml'
+                sh 'kubectl apply -f k8s/dbpostgres.yaml'
                 sh 'kubectl apply -f k8s/app-deployment.yaml'
                 sh 'kubectl rollout status deployment/jeedemo-app'
             }
