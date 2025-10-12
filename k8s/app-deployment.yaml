@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: jeedemo-app
+spec:
+  replicas: 1  # Scale à 2+ pour HA
+  selector:
+    matchLabels:
+      app: jeedemo-app
+  template:
+    metadata:
+      labels:
+        app: jeedemo-app
+    spec:
+      containers:
+        - name: jeedemo-app
+          image: jeedemo-img1:latest  # Update dynamiquement via Jenkins
+          ports:
+            - containerPort: 8080
+          env:
+            - name: DB_HOST
+              value: jeedemo-db-service  # Référence le service DB
+            - name: DB_PORT
+              value: "5432"
+            - name: DB_NAME
+              value: jeedemo_db
+            - name: DB_USER
+              value: imk
+            - name: DB_PASSWORD
+              value: secret  # Utilise Secrets
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: jeedemo-app-service
+spec:
+  selector:
+    app: jeedemo-app
+  ports:
+    - port: 80
+      targetPort: 8080
+  type: LoadBalancer

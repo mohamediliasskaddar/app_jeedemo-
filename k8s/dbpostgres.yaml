@@ -1,0 +1,50 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: jeedemo-db
+spec:
+  serviceName: jeedemo-db
+  replicas: 1  # 1 pour commencer ; scale plus tard
+  selector:
+    matchLabels:
+      app: jeedemo-db
+  template:
+    metadata:
+      labels:
+        app: jeedemo-db
+    spec:
+      containers:
+        - name: postgres
+          image: postgres:17
+          env:
+            - name: POSTGRES_USER
+              value: imk
+            - name: POSTGRES_PASSWORD
+              value: secret  # Utilise Secrets en prod
+            - name: POSTGRES_DB
+              value: jeedemo_db
+          ports:
+            - containerPort: 5432
+          volumeMounts:
+            - name: data
+              mountPath: /var/lib/postgresql/data
+  volumeClaimTemplates:
+    - metadata:
+        name: data
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        resources:
+          requests:
+            storage: 1Gi  # Taille du volume
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: jeedemo-db-service
+spec:
+  selector:
+    app: jeedemo-db
+  ports:
+    - port: 5432
+      targetPort: 5432
+  type: ClusterIP  # Interne au cluster

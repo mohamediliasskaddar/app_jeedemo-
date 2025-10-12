@@ -1,58 +1,3 @@
-// pipeline {
-//     agent {
-//         docker {
-//             image 'maven:3.9.6-eclipse-temurin-21'
-//         }
-//     }
-//
-//     environment {
-//         DOCKER_IMAGE = 'jeedemo-img1'
-//     }
-//
-//     stages {
-//         stage('Checkout') {
-//             steps {
-//                 checkout scm
-//             }
-//         }
-//
-//         stage('Build Maven') {
-//             steps {
-//                 sh 'mvn clean package -DskipTests'
-//             }
-//         }
-//
-//         stage('Build Docker Image') {
-//             agent none
-//             steps {
-//                 script {
-//                     sh "docker build -t ${DOCKER_IMAGE}:${env.BUILD_NUMBER} ."
-//                     sh "docker tag ${DOCKER_IMAGE}:${env.BUILD_NUMBER} ${DOCKER_IMAGE}:latest"
-//                 }
-//             }
-//         }
-//
-//         stage('Deploy') {
-//             agent none
-//             steps {
-//                 script {
-//                     sh "docker-compose down"
-//                     sh "docker-compose up -d --build"
-//                 }
-//             }
-//         }
-//     }
-//
-//     post {
-//         success {
-//             echo "✅ Déploiement réussi avec ${DOCKER_IMAGE}:${env.BUILD_NUMBER}"
-//         }
-//         failure {
-//             echo "❌ Pipeline échoué !!!!"
-//         }
-//     }
-// }
-
 pipeline {
     agent any
 
@@ -77,20 +22,35 @@ pipeline {
                 sh 'mvn clean package -DskipTests'
             }
         }
-
         stage('Build Docker Image') {
             steps {
-                sh "docker build -t ${DOCKER_IMAGE}:${env.BUILD_NUMBER} ."
-                sh "docker tag ${DOCKER_IMAGE}:${env.BUILD_NUMBER} ${DOCKER_IMAGE}:latest"
+                script {
+                    withCredentials([usernamePassword(credentialsId: 'docker-hub-creds', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
+                        sh "echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin"
+                        sh "docker build -t ${DOCKER_IMAGE}:${env.BUILD_NUMBER} ."
+                        sh "docker tag ${DOCKER_IMAGE}:${env.BUILD_NUMBER} ${DOCKER_IMAGE}:latest"
+                        sh "docker push ${DOCKER_IMAGE}:${env.BUILD_NUMBER}"
+                        sh "docker push ${DOCKER_IMAGE}:latest"
+                    }
+                }
             }
         }
-
-        stage('Deploy') {
+        stage('Deploy to Kubernetes') {
             steps {
-                sh "docker-compose down"
-                sh "docker-compose up -d --build"
+//                 sh 'minikube start'  // Si pas lancé
+                sh "sed -i 's|image: jeedemo-img1:latest|image: ${DOCKER_IMAGE}:${env.BUILD_NUMBER}|g' k8s/app-deployment.yaml"  // Update image tag
+                sh 'kubectl apply -f k8s/dbpostgres.yaml'
+                sh 'kubectl apply -f k8s/app-deployment.yaml'
+                sh 'kubectl rollout status deployment/jeedemo-app'  // Attend rollout
             }
         }
     }
+    post {
+        success {
+            echo "Déploiement réussi avec ${DOCKER_IMAGE}:${env.BUILD_NUMBER}"
+        }
+        failure {
+            echo "Pipeline échoué !!!!"
+        }
+    }
 }
-
