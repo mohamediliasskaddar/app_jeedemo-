@@ -2,7 +2,8 @@ pipeline {
     agent any
 
     environment {
-        DOCKER_IMAGE = 'jeedemo-img1'
+        DOCKER_IMAGE = 'mohamediliasskaddar/jeedemo-img1'
+//         DOCKERHUB_CREDENTIALS = credentials('docker-hub-creds')
     }
 
     stages {
